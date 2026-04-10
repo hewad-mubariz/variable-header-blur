@@ -1,57 +1,197 @@
-# Welcome to your Expo app 👋
+# Variable Header Blur (Expo Module)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A native iOS variable blur header for Expo apps, powered by SwiftUI and `UIVisualEffectView`.
 
-## Get started
+This module provides a **progressive blur effect** (top blurred → bottom clear) similar to iOS system headers, with smooth gradient transitions and optional tint overlays.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## ✨ Features
 
-2. Start the app
+- Native iOS **variable blur** (not a simple Gaussian blur)
+- Smooth gradient blur transition (top → bottom)
+- Works with **Expo + React Native**
+- Customizable:
+  - `maxBlurRadius`
+  - `tintOpacityTop`
+  - `tintOpacityMiddle`
 
-   ```bash
-   npx expo start
-   ```
+- Built using **SwiftUI + UIKit bridging**
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## 📸 Preview
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+> A floating header blur over scrollable content
 
-## Get a fresh project
+https://github.com/user-attachments/assets/25d221f3-ccb7-4dfd-a80a-f30a3dbd869c
 
-When you're ready, run:
+---
 
-```bash
-npm run reset-project
+## 🧠 How it works
+
+This module is based on the original implementation from:
+
+👉 [https://github.com/nikstar/VariableBlur](https://github.com/nikstar/VariableBlur)
+
+The blur is achieved using:
+
+- `UIVisualEffectView`
+- Private Core Animation filters (`variableBlur`)
+- A **gradient mask image** that controls blur intensity per pixel
+
+### Important
+
+The blur is applied at the **native layer level**, meaning:
+
+- It blurs **everything behind it**
+- It does **not blur its children**
+- It must be used as a **background layer**, not a container
+
+Correct usage:
+
+```tsx
+<View style={styles.header}>
+  <VariableHeaderBlurView style={StyleSheet.absoluteFill} />
+
+  <View>{/* Your content here */}</View>
+</View>
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-### Other setup steps
+## ⚠️ Important Notes
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+### 1. Not supported in Expo Go
 
-## Learn more
+This module contains **custom native iOS code**, so it will NOT work in Expo Go.
 
-To learn more about developing your project with Expo, look at the following resources:
+You must create a development build:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npx expo prebuild
+npx expo run:ios
+```
 
-## Join the community
+or:
 
-Join our community of developers creating universal apps.
+```bash
+npx expo start --dev-client
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-# variable-header-blur
+---
+
+### 2. iOS Only
+
+This module is currently:
+
+- ✅ iOS supported
+- ❌ Android not supported
+
+---
+
+### 3. Uses private API
+
+The original implementation uses an **obfuscated private API** (`variableBlur` filter).
+
+While it has been used in production without rejection, **use at your own risk**.
+
+---
+
+## 🚀 Installation
+
+### 1. Add the module
+
+Place the module inside your project:
+
+```
+modules/variable-header-blur
+```
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Generate native code
+
+```bash
+npx expo prebuild
+cd ios && pod install
+```
+
+---
+
+## 🧩 Usage
+
+```tsx
+import { VariableHeaderBlurView } from "variable-header-blur";
+
+<View style={{ flex: 1 }}>
+  <ScrollView>{/* content */}</ScrollView>
+
+  <View style={{ position: "absolute", top: 0, left: 0, right: 0 }}>
+    <VariableHeaderBlurView
+      style={StyleSheet.absoluteFill}
+      maxBlurRadius={20}
+      tintOpacityTop={0.4}
+      tintOpacityMiddle={0.1}
+    />
+
+    <View style={{ padding: 16 }}>
+      <Text>Header Content</Text>
+    </View>
+  </View>
+</View>;
+```
+
+---
+
+## ⚙️ Props
+
+| Prop                | Type   | Default | Description                |
+| ------------------- | ------ | ------- | -------------------------- |
+| `maxBlurRadius`     | number | 15      | Maximum blur strength      |
+| `tintOpacityTop`    | number | 0.4     | Opacity at top of gradient |
+| `tintOpacityMiddle` | number | 0.1     | Opacity in middle          |
+
+---
+
+## 🏗️ Architecture
+
+This module uses a **layered native structure**:
+
+- `blurLayer` → SwiftUI + VariableBlur
+- `contentLayer` → React Native children
+
+This ensures:
+
+- blur affects background only
+- UI elements remain sharp
+
+---
+
+## 📦 Tech Stack
+
+- Expo Modules API
+- SwiftUI
+- UIKit (`UIVisualEffectView`)
+- Core Image (`CIFilter`)
+- React Native
+
+---
+
+## 🙏 Credits
+
+Huge credit to the original implementation:
+
+👉 [https://github.com/nikstar/VariableBlur](https://github.com/nikstar/VariableBlur)
+
+This module adapts it for Expo and React Native.
+
+If you want, I can also:
+
+- add a GIF demo section
+- add Android fallback (simple blur)
+- or prepare this for npm publishing 🚀
