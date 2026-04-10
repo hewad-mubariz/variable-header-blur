@@ -4,35 +4,6 @@ import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { VariableHeaderBlurView } from "../../modules/variable-header-blur";
-export const HeroCard = () => {
-  return (
-    <View style={styles.card}>
-      {/* User-themed Icon (SF Symbol: person.2.fill) */}
-      <View style={styles.iconContainer}>
-        <SymbolView
-          name="person.2.fill"
-          size={22}
-          tintColor="#5856D6" // iOS Indigo for a friendlier feel
-          weight="bold"
-        />
-      </View>
-
-      {/* Content: "Find Friends" or "People Nearby" */}
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>Find Friends</Text>
-        <Text style={styles.subtitle}>24 people you know are active</Text>
-      </View>
-
-      {/* Action: "Connect" or "Add" */}
-      <Pressable
-        style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
-      >
-        <Text style={styles.buttonText}>Connect</Text>
-      </Pressable>
-    </View>
-  );
-};
-//Generate random color Blusish greeneish redes
 const colors = [
   "rgb(134, 187, 252)",
   "rgb(167, 243, 208)",
@@ -41,6 +12,32 @@ const colors = [
   "rgb(217, 70, 239)",
   "rgb(192, 132, 252)",
 ];
+export const HeroCard = () => {
+  return (
+    <View style={styles.card}>
+      <View style={styles.iconContainer}>
+        <SymbolView
+          name="person.2.fill"
+          size={22}
+          tintColor="#5856D6"
+          weight="bold"
+        />
+      </View>
+
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>Find Friends</Text>
+        <Text style={styles.subtitle}>24 people you know are active</Text>
+      </View>
+
+      <Pressable
+        style={({ pressed }) => [styles.button, pressed && { opacity: 0.8 }]}
+      >
+        <Text style={styles.buttonText}>Connect</Text>
+      </Pressable>
+    </View>
+  );
+};
+
 export default function App() {
   const insets = useSafeAreaInsets();
 
@@ -118,7 +115,6 @@ export default function App() {
             <Ionicons name="chevron-down" size={14} color="#666" />
           </View>
 
-          {/* Right Icon */}
           <Pressable style={styles.headerButton}>
             <Ionicons name="settings-outline" size={22} color="black" />
           </Pressable>
@@ -135,11 +131,11 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: "white",
-    borderRadius: 20, // Extra rounded for that modern iOS look
+    borderRadius: 20,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
-    // Subtle shadow so it "floats" over the background
+
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.06,
@@ -151,7 +147,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#E8F2FF", // Very light blue tint
+    backgroundColor: "#E8F2FF",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -172,7 +168,7 @@ const styles = StyleSheet.create({
     marginTop: 1,
   },
   button: {
-    backgroundColor: "#007AFF", // Standard iOS Blue
+    backgroundColor: "#007AFF",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 20,
@@ -194,7 +190,6 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    // The height is now determined by the children + safe area padding
     zIndex: 100,
   },
   headerRow: {
@@ -202,11 +197,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingBottom: 12, // Space between buttons and the bottom of the blur
+    paddingBottom: 12,
     height: 64,
   },
   userList: {
-    gap: 1, // Creates a subtle divider look if background is slightly different
+    gap: 1,
   },
   headerButton: {
     width: 42,
@@ -236,23 +231,13 @@ const styles = StyleSheet.create({
   pillEmoji: { fontSize: 16 },
   pillText: { fontSize: 15, fontWeight: "600" },
 
-  // WIDGET STYLES
   sectionTitle: {
     fontSize: 22,
     fontWeight: "800",
     marginBottom: 20,
     color: "#111827",
   },
-  fillerCard: {
-    width: "100%",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  fillerText: {
-    color: "#9CA3AF",
-    fontWeight: "500",
-  },
+
   userCard: {
     flexDirection: "row",
     alignItems: "center",
