@@ -192,6 +192,5 @@ This module adapts it for Expo and React Native.
 
 If you want, I can also:
 
-- add a GIF demo section
 - add Android fallback (simple blur)
 - or prepare this for npm publishing 🚀
