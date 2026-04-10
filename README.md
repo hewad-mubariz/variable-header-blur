@@ -190,7 +190,7 @@ Huge credit to the original implementation:
 
 This module adapts it for Expo and React Native.
 
-If you want, I can also:
+Todo:
 
 - add Android fallback (simple blur)
 - or prepare this for npm publishing 🚀
