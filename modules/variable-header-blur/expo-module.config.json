@@ -1,0 +1,15 @@
+{
+  "platforms": [
+    "apple"
+  ],
+  "apple": {
+    "modules": [
+      "VariableHeaderBlurModule"
+    ]
+  },
+  "android": {
+    "modules": [
+      "expo.modules.variableheaderblur.VariableHeaderBlurModule"
+    ]
+  }
+}
