@@ -1,17 +1,12 @@
 import { requireNativeViewManager } from "expo-modules-core";
 import * as React from "react";
-import { ViewProps } from "react-native";
-
-interface Props extends ViewProps {
-  maxBlurRadius?: number;
-  fadeExtension?: number;
-  tintOpacityTop?: number;
-  tintOpacityMiddle?: number;
-  children?: React.ReactNode; // Explicitly allow children
-}
+import { VariableHeaderBlurViewProps } from "./VariableHeaderBlur.types"; // Adjust path as needed
 
 const NativeView = requireNativeViewManager("VariableHeaderBlur");
 
-export default function VariableHeaderBlurView({ children, ...props }: Props) {
+export default function VariableHeaderBlurView({
+  children,
+  ...props
+}: VariableHeaderBlurViewProps) {
   return <NativeView {...props}>{children}</NativeView>;
 }
