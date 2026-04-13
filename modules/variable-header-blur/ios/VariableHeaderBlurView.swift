@@ -22,7 +22,10 @@ struct VariableBlurSwiftUIWrapper: View {
         LinearGradient(
           stops: [
             .init(color: fadeTint.opacity(tintOpacityTop), location: 0),
-            .init(color: fadeTint.opacity(tintOpacityMiddle), location: min(90 / height, 1)),
+            .init(
+              color: fadeTint.opacity(tintOpacityMiddle),
+              location: min(90 / height, 1)
+            ),
             .init(color: fadeTint.opacity(0), location: 1),
           ],
           startPoint: .top,
@@ -41,12 +44,9 @@ struct VariableBlurSwiftUIWrapper: View {
 
 final class VariableHeaderBlurView: ExpoView {
   private let blurContainer = UIView()
-  private let contentView = UIView()
-
   private var hostingController: UIHostingController<VariableBlurSwiftUIWrapper>?
 
-  private var isSettingUpInternalViews = false
-
+  private var headerHeight: CGFloat = 150
   private var maxBlurRadius: CGFloat = 15
   private var tintOpacityTop: Double = 0.4
   private var tintOpacityMiddle: Double = 0.1
@@ -58,32 +58,26 @@ final class VariableHeaderBlurView: ExpoView {
 
   private func setup() {
     backgroundColor = .clear
-    clipsToBounds = true
+    clipsToBounds = false
 
     blurContainer.backgroundColor = .clear
     blurContainer.isUserInteractionEnabled = false
-
-    contentView.backgroundColor = .clear
-    contentView.isUserInteractionEnabled = true
-
-    isSettingUpInternalViews = true
-    super.addSubview(blurContainer)
-    super.addSubview(contentView)
-    isSettingUpInternalViews = false
+    blurContainer.clipsToBounds = true
 
     setupBlur()
+
+    // Add ONLY the internal overlay ourselves.
+    super.addSubview(blurContainer)
   }
 
   private func setupBlur() {
     let controller = UIHostingController(rootView: createWrapper())
     controller.view.backgroundColor = .clear
     controller.view.isUserInteractionEnabled = false
+    controller.view.clipsToBounds = true
 
     hostingController = controller
-
-    isSettingUpInternalViews = true
     blurContainer.addSubview(controller.view)
-    isSettingUpInternalViews = false
   }
 
   private func createWrapper() -> VariableBlurSwiftUIWrapper {
@@ -94,70 +88,49 @@ final class VariableHeaderBlurView: ExpoView {
     )
   }
 
-  private func updateUI() {
-    hostingController?.rootView = createWrapper()
+  func setHeaderHeight(_ value: Double) {
+    headerHeight = max(CGFloat(value), 0)
     setNeedsLayout()
+  }
+
+  func setMaxBlurRadius(_ value: Double) {
+    maxBlurRadius = max(CGFloat(value), 0)
+    hostingController?.rootView = createWrapper()
+  }
+
+  func setTintOpacityTop(_ value: Double) {
+    tintOpacityTop = value
+    hostingController?.rootView = createWrapper()
+  }
+
+  func setTintOpacityMiddle(_ value: Double) {
+    tintOpacityMiddle = value
+    hostingController?.rootView = createWrapper()
   }
 
   override func layoutSubviews() {
     super.layoutSubviews()
 
-    blurContainer.frame = bounds
-    contentView.frame = bounds
+    blurContainer.frame = CGRect(
+      x: 0,
+      y: 0,
+      width: bounds.width,
+      height: min(headerHeight, bounds.height)
+    )
+
     hostingController?.view.frame = blurContainer.bounds
 
-    bringSubviewToFront(contentView)
+    // Keep our blur overlay above RN children.
+    bringSubviewToFront(blurContainer)
   }
 
-  // MARK: - Prop setters
+  override func didAddSubview(_ subview: UIView) {
+    super.didAddSubview(subview)
 
-  func setMaxBlurRadius(_ radius: Double) {
-    maxBlurRadius = CGFloat(radius)
-    updateUI()
-  }
-
-  func setTintOpacityTop(_ value: Double) {
-    tintOpacityTop = value
-    updateUI()
-  }
-
-  func setTintOpacityMiddle(_ value: Double) {
-    tintOpacityMiddle = value
-    updateUI()
-  }
-
-  // MARK: - Child view routing
-
-  override func addSubview(_ view: UIView) {
-    if shouldKeepOnRoot(view) {
-      super.addSubview(view)
-      return
+    // RN may add children after our blur overlay.
+    // Always bring blur back to the front.
+    if subview !== blurContainer {
+      bringSubviewToFront(blurContainer)
     }
-
-    contentView.addSubview(view)
-  }
-
-  override func insertSubview(_ view: UIView, at index: Int) {
-    if shouldKeepOnRoot(view) {
-      super.insertSubview(view, at: index)
-      return
-    }
-
-    let safeIndex = min(index, contentView.subviews.count)
-    contentView.insertSubview(view, at: safeIndex)
-  }
-
-  override func willRemoveSubview(_ subview: UIView) {
-    super.willRemoveSubview(subview)
-  }
-
-  private func shouldKeepOnRoot(_ view: UIView) -> Bool {
-    if isSettingUpInternalViews { return true }
-    if view === blurContainer { return true }
-    if view === contentView { return true }
-    if view === hostingController?.view { return true }
-    if view.superview === blurContainer { return true }
-    if view.superview === contentView { return true }
-    return false
   }
 }

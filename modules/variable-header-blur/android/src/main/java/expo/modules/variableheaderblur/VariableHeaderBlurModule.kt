@@ -2,49 +2,39 @@ package expo.modules.variableheaderblur
 
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
-import java.net.URL
 
 class VariableHeaderBlurModule : Module() {
-  // Each module class must implement the definition function. The definition consists of components
-  // that describes the module's functionality and behavior.
-  // See https://docs.expo.dev/modules/module-api for more details about available components.
   override fun definition() = ModuleDefinition {
-    // Sets the name of the module that JavaScript code will use to refer to the module. Takes a string as an argument.
-    // Can be inferred from module's class name, but it's recommended to set it explicitly for clarity.
-    // The module will be accessible from `requireNativeModule('VariableHeaderBlur')` in JavaScript.
     Name("VariableHeaderBlur")
 
-    // Defines constant property on the module.
-    Constant("PI") {
-      Math.PI
-    }
-
-    // Defines event names that the module can send to JavaScript.
-    Events("onChange")
-
-    // Defines a JavaScript synchronous function that runs the native code on the JavaScript thread.
-    Function("hello") {
-      "Hello world! 👋"
-    }
-
-    // Defines a JavaScript function that always returns a Promise and whose native code
-    // is by default dispatched on the different thread than the JavaScript runtime runs on.
-    AsyncFunction("setValueAsync") { value: String ->
-      // Send an event to JavaScript.
-      sendEvent("onChange", mapOf(
-        "value" to value
-      ))
-    }
-
-    // Enables the module to be used as a native view. Definition components that are accepted as part of
-    // the view definition: Prop, Events.
     View(VariableHeaderBlurView::class) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { view: VariableHeaderBlurView, url: URL ->
-        view.webView.loadUrl(url.toString())
+      Prop("headerHeight") { view: VariableHeaderBlurView, value: Double ->
+        view.setHeaderHeight(value)
       }
-      // Defines an event that the view can send to JavaScript.
-      Events("onLoad")
+
+      Prop("maxBlurRadius") { view: VariableHeaderBlurView, value: Double ->
+        view.setMaxBlurRadius(value)
+      }
+
+      Prop("tintOpacityTop") { view: VariableHeaderBlurView, value: Double ->
+        view.setTintOpacityTop(value)
+      }
+
+      Prop("tintOpacityMiddle") { view: VariableHeaderBlurView, value: Double ->
+        view.setTintOpacityMiddle(value)
+      }
+
+      Prop("tintColor") { view: VariableHeaderBlurView, value: String? ->
+        view.setTintColor(value)
+      }
+
+      Prop("progressiveStartY") { view: VariableHeaderBlurView, value: Double ->
+        view.setProgressiveStartY(value)
+      }
+
+      Prop("progressiveEndY") { view: VariableHeaderBlurView, value: Double ->
+        view.setProgressiveEndY(value)
+      }
     }
   }
 }

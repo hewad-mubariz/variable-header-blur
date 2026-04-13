@@ -3,6 +3,7 @@
 # dependencies
 node_modules/
 
+
 # Expo
 .expo/
 dist/
@@ -41,3 +42,24 @@ app-example
 # generated native folders
 /ios
 /android
+# Gradle
+.gradle/
+build/
+
+# Android
+android/build/
+android/app/build/
+android/.gradle/
+
+# Expo modules
+modules/**/android/build/
+modules/**/android/.gradle/
+
+# Local config
+local.properties
+
+# NDK
+.cxx/
+
+# Logs
+*.log

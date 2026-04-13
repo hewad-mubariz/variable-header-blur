@@ -1,39 +1,74 @@
 import type { StyleProp, ViewStyle } from "react-native";
 
 /**
- * Props for the Native Variable Header Blur view.
+ * Props for the native VariableHeaderBlur view.
  */
 export type VariableHeaderBlurViewProps = {
   /**
-   * The maximum blur intensity (usually between 0 and 50).
-   * @default 20
+   * Height of the blur header region.
+   * Usually includes safe area top inset.
+   */
+  headerHeight?: number;
+
+  /**
+   * Maximum blur radius/intensity.
+   * @default 16
    */
   maxBlurRadius?: number;
 
   /**
-   * How far the blur extends (in points).
-   * This is used natively to calculate the gradient falloff.
-   * @default 64
+   * Top tint opacity.
+   * @default 0.3
    */
-  fadeExtension?: number;
+  tintOpacityTop?: number;
+
+  /**
+   * Middle tint opacity.
+   * @default 0.1
+   */
+  tintOpacityMiddle?: number;
+
+  /**
+   * Tint color used for the blur overlay.
+   * Accepts a hex color like "#FFFFFF" or "#000000".
+   * @default "#FFFFFF"
+   */
+  tintColor?: string;
+
+  /**
+   * Progressive blur start Y position.
+   * Useful for tuning when the blur should begin.
+   * Android only for now, but safe to expose cross-platform.
+   */
+  progressiveStartY?: number;
+
+  /**
+   * Progressive blur end Y position.
+   * Useful for tuning when the blur should fade out.
+   * Android only for now, but safe to expose cross-platform.
+   */
+  progressiveEndY?: number;
 
   /**
    * Standard React Native view styles.
-   * You should usually set 'position: absolute' and a 'height' here.
    */
   style?: StyleProp<ViewStyle>;
+
+  /**
+   * Child content rendered behind the blur region.
+   */
+  children?: React.ReactNode;
 };
 
 /**
- * Payload for the onChange event if you decide to emit values
- * from Swift (e.g., reporting the actual height).
+ * Payload for optional native change events.
  */
 export type ChangeEventPayload = {
   value: string;
 };
 
 /**
- * Events emitted by the Native Module.
+ * Events emitted by the native module.
  */
 export type VariableHeaderBlurModuleEvents = {
   onChange: (params: ChangeEventPayload) => void;
