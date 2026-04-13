@@ -1,124 +1,103 @@
 # Variable Header Blur (Expo Module)
 
-A native iOS variable blur header for Expo apps, powered by SwiftUI and `UIVisualEffectView`.
+Cross-platform native header blur for Expo apps:
 
-This module provides a **progressive blur effect** (top blurred → bottom clear) similar to iOS system headers, with smooth gradient transitions and optional tint overlays.
+- **iOS:** true variable blur powered by `UIVisualEffectView` + `variableBlur` filter
+- **Android:** progressive blur/tint header powered by [Haze](https://github.com/chrisbanes/haze)
+
+Designed for frosted headers where blur intensity fades from top to bottom.
 
 ---
 
 ## ✨ Features
 
-- Native iOS **variable blur** (not a simple Gaussian blur)
-- Smooth gradient blur transition (top → bottom)
-- Works with **Expo + React Native**
-- Customizable:
-  - `maxBlurRadius`
-  - `tintOpacityTop`
-  - `tintOpacityMiddle`
-
-- Built using **SwiftUI + UIKit bridging**
+- Native `VariableHeaderBlurView` for **iOS + Android**
+- Progressive top-to-bottom blur gradient
+- Configurable tint gradient (`tintOpacityTop`, `tintOpacityMiddle`)
+- Adjustable blur strength (`maxBlurRadius`)
+- Configurable header region (`headerHeight`)
+- Android-only advanced tuning (`tintColor`, `progressiveStartY`, `progressiveEndY`)
 
 ---
 
-## 📸 Preview
+## 📸 Demo
 
-> A floating header blur over scrollable content
+### iOS
 
 https://github.com/user-attachments/assets/25d221f3-ccb7-4dfd-a80a-f30a3dbd869c
 
----
+### Android
 
-## 🧠 How it works
+https://github.com/user-attachments/assets/28efc49f-3aca-45d3-991c-512188aca9ed
 
-This module is based on the original implementation from:
+## 🧠 Implementation Notes
 
-👉 [https://github.com/nikstar/VariableBlur](https://github.com/nikstar/VariableBlur)
+### iOS implementation
 
-The blur is achieved using:
+Based on [nikstar/VariableBlur](https://github.com/nikstar/VariableBlur):
 
-- `UIVisualEffectView`
-- Private Core Animation filters (`variableBlur`)
-- A **gradient mask image** that controls blur intensity per pixel
+- `UIVisualEffectView` with obfuscated private `variableBlur` filter
+- Gradient mask drives blur intensity per pixel
+- SwiftUI wrapper layered inside an Expo `ExpoView`
 
-### Important
+### Android implementation (Haze)
 
-The blur is applied at the **native layer level**, meaning:
+Android uses the Haze pipeline inside a Compose-backed native view:
 
-- It blurs **everything behind it**
-- It does **not blur its children**
-- It must be used as a **background layer**, not a container
+- `hazeSource(state)` marks the content source layer
+- `hazeEffect(state)` applies blur + tint
+- `HazeProgressive.verticalGradient(...)` controls progressive blur falloff
+- Additional Canvas gradient aligns tint transition with blur ramp
 
-Correct usage:
-
-```tsx
-<View style={styles.header}>
-  <VariableHeaderBlurView style={StyleSheet.absoluteFill} />
-
-  <View>{/* Your content here */}</View>
-</View>
-```
+This gives a close visual analogue to iOS progressive headers on Android.
 
 ---
 
 ## ⚠️ Important Notes
 
-### 1. Not supported in Expo Go
+### 1) Requires a development build
 
-This module contains **custom native iOS code**, so it will NOT work in Expo Go.
-
-You must create a development build:
+This module contains custom native code, so it does **not** work in Expo Go.
 
 ```bash
 npx expo prebuild
 npx expo run:ios
+npx expo run:android
 ```
-
-or:
-
-```bash
-npx expo start --dev-client
-```
-
----
-
-### 2. iOS Only
-
-This module is currently:
-
-- ✅ iOS supported
-- ❌ Android not supported
-
----
-
-### 3. Uses private API
-
-The original implementation uses an **obfuscated private API** (`variableBlur` filter).
-
-While it has been used in production without rejection, **use at your own risk**.
-
----
 
 ## 🚀 Installation
 
-### 1. Add the module
-
-Place the module inside your project:
+### 1) Place module in project
 
 ```
 modules/variable-header-blur
 ```
 
-### 2. Install dependencies
+### 2) Add dependency
 
-```bash
-npm install
+Add to app `package.json`:
+
+```json
+{
+  "dependencies": {
+    "variable-header-blur": "file:./modules/variable-header-blur"
+  }
+}
 ```
 
-### 3. Generate native code
+Then install:
+
+```bash
+yarn install
+```
+
+### 3) Generate native projects
 
 ```bash
 npx expo prebuild
-cd ios && pod install
+
+npx expo run:android
+npx expor run:ios
 ```
 
 ---
@@ -128,69 +107,45 @@ cd ios && pod install
 ```tsx
 import { VariableHeaderBlurView } from "variable-header-blur";
 
-<View style={{ flex: 1 }}>
-  <ScrollView>{/* content */}</ScrollView>
-
-  <View style={{ position: "absolute", top: 0, left: 0, right: 0 }}>
-    <VariableHeaderBlurView
-      style={StyleSheet.absoluteFill}
-      maxBlurRadius={20}
-      tintOpacityTop={0.4}
-      tintOpacityMiddle={0.1}
-    />
-
-    <View style={{ padding: 16 }}>
-      <Text>Header Content</Text>
-    </View>
-  </View>
-</View>;
+<VariableHeaderBlurView
+  headerHeight={HEADER_TOTAL_HEIGHT}
+  maxBlurRadius={16}
+  tintOpacityTop={0.3}
+  tintOpacityMiddle={0.1}
+  style={{ position: "absolute", top: 0, left: 0, right: 0 }}
+>
+  {/* Header content */}
+</VariableHeaderBlurView>;
 ```
 
 ---
 
 ## ⚙️ Props
 
-| Prop                | Type   | Default | Description                |
-| ------------------- | ------ | ------- | -------------------------- |
-| `maxBlurRadius`     | number | 15      | Maximum blur strength      |
-| `tintOpacityTop`    | number | 0.4     | Opacity at top of gradient |
-| `tintOpacityMiddle` | number | 0.1     | Opacity in middle          |
+| Prop                | Type        | Description                                                  |
+| ------------------- | ----------- | ------------------------------------------------------------ |
+| `headerHeight`      | `number`    | Height of the blur header region.                            |
+| `maxBlurRadius`     | `number`    | Maximum blur intensity (`15` iOS / `16` Android by default). |
+| `tintOpacityTop`    | `number`    | Top tint opacity (`0.4` iOS / `0.3` Android defaults).       |
+| `tintOpacityMiddle` | `number`    | Mid tint opacity (`0.1` default).                            |
+| `tintColor`         | `string`    | Tint color (Android only currently).                         |
+| `progressiveStartY` | `number`    | Progressive blur start Y position (Android only).            |
+| `progressiveEndY`   | `number`    | Progressive blur end Y position (Android only).              |
+| `style`             | `ViewStyle` | Standard React Native style prop.                            |
+| `children`          | `ReactNode` | Content placed inside the header blur container.             |
 
 ---
 
 ## 🏗️ Architecture
 
-This module uses a **layered native structure**:
-
-- `blurLayer` → SwiftUI + VariableBlur
-- `contentLayer` → React Native children
-
-This ensures:
-
-- blur affects background only
-- UI elements remain sharp
-
----
-
-## 📦 Tech Stack
-
-- Expo Modules API
-- SwiftUI
-- UIKit (`UIVisualEffectView`)
-- Core Image (`CIFilter`)
-- React Native
+- `src/VariableHeaderBlurView.tsx` exposes the native view manager.
+- `ios/VariableHeaderBlurView.swift` hosts variable blur + tint gradient.
+- `android/VariableHeaderBlurView.kt` hosts Haze progressive blur + tint gradient.
+- Native props are mapped via `VariableHeaderBlurModule` on both platforms.
 
 ---
 
 ## 🙏 Credits
 
-Huge credit to the original implementation:
-
-👉 [https://github.com/nikstar/VariableBlur](https://github.com/nikstar/VariableBlur)
-
-This module adapts it for Expo and React Native.
-
-Todo:
-
-- add Android fallback (simple blur)
-- or prepare this for npm publishing 🚀
+- iOS variable blur inspiration: [nikstar/VariableBlur](https://github.com/nikstar/VariableBlur)
+- Android blur pipeline: [chrisbanes/haze](https://github.com/chrisbanes/haze)
